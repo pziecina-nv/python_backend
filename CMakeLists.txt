@@ -145,7 +145,7 @@ if(NOT WIN32)
 endif()
 
 include_directories(${CMAKE_BINARY_DIR})
-configure_file(src/libtriton_python.ldscript libtriton_python.ldscript COPYONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/libtriton_python.ldscript ${CMAKE_CURRENT_BINARY_DIR}/libtriton_python.ldscript COPYONLY)
 
 set(
   COMMON_SRCS
@@ -329,7 +329,7 @@ else()
     POSITION_INDEPENDENT_CODE ON
     OUTPUT_NAME triton_python
     LINK_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/libtriton_python.ldscript
-    LINK_FLAGS "-Wl,--version-script libtriton_python.ldscript"
+    LINK_FLAGS "-Wl,--version-script ${CMAKE_CURRENT_BINARY_DIR}/libtriton_python.ldscript"
   )
 endif()
 
