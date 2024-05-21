@@ -213,8 +213,9 @@ list(APPEND
   ${COMMON_SRCS}
 )
 
+set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries by default")
 add_library(
-  triton-python-backend SHARED
+  triton-python-backend
   ${PYTHON_BACKEND_SRCS}
 )
 
