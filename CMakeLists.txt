@@ -394,3 +394,5 @@ export(
 )
 
 export(PACKAGE TritonPythonBackend)
+
+export(TARGETS dlpack FILE "${CMAKE_CURRENT_BINARY_DIR}/dlpackTargets.cmake")
