@@ -227,8 +227,6 @@ class PbTensor {
   /// Set the underlying memory
   void SetMemory(std::unique_ptr<PbMemory>&& memory);
 
-  PbTensor();
-
   /// Destructor
   ~PbTensor() noexcept(false);
 
