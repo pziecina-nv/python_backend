@@ -230,7 +230,7 @@ class PbTensor {
   /// Destructor
   ~PbTensor() noexcept(false);
 
- private:
+ protected:
   std::string name_;
 #ifdef TRITON_PB_STUB
   py::array numpy_array_;
