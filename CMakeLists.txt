@@ -256,7 +256,7 @@ target_compile_features(triton-python-backend PRIVATE cxx_std_${TRITON_MIN_CXX_S
 target_compile_options(
   triton-python-backend PRIVATE
   $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
-    -Wall -Wextra -Wno-unused-parameter -Wno-type-limits -Werror>
+    -fvisibility=hidden -Wall -Wextra -Wno-unused-parameter -Wno-type-limits -Werror>
   $<$<CXX_COMPILER_ID:MSVC>:/Wall /D_WIN32_WINNT=0x0A00 /EHsc /Zc:preprocessor>
 )
 
@@ -276,6 +276,7 @@ if(WIN32)
     PRIVATE
       dlpack
       triton-backend-utils          # from repo-backend
+      pybind11::embed
       -lrt                          # shared memory
       triton-core-serverstub        # from repo-core
       ZLIB::ZLIB
@@ -299,6 +300,7 @@ else()
       Threads::Threads
       triton-backend-utils          # from repo-backend
       ${CMAKE_DL_LIBS}              # dlopen and dlclose
+      pybind11::embed
       -lrt                          # shared memory
       triton-core-serverstub        # from repo-core
       ZLIB::ZLIB

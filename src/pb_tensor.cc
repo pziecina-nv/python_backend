@@ -29,16 +29,14 @@
 #endif  // TRITON_ENABLE_GPU
 
 #ifdef TRITON_PB_STUB
-#include "pb_stub.h"
 #include "pb_stub_utils.h"
-namespace py = pybind11;
 #endif
+#include "pb_stub.h"
 #include "pb_tensor.h"
 
 
 namespace triton { namespace backend { namespace python {
 
-#ifdef TRITON_PB_STUB
 PbTensor::PbTensor(const std::string& name, py::array& numpy_array)
     : name_(name)
 {
@@ -125,7 +123,6 @@ PbTensor::PbTensor(
   memory_type_id_ = 0;
   dl_managed_tensor_ = nullptr;
 }
-#endif  // TRITON_PB_STUB
 
 PbTensor::PbTensor(
     const std::string& name, const std::vector<int64_t>& dims,
@@ -144,7 +141,6 @@ PbTensor::PbTensor(
   dtype_ = dtype;
   dims_ = dims;
 
-#ifdef TRITON_PB_STUB
   if (memory_type_ == TRITONSERVER_MEMORY_CPU ||
       memory_type_ == TRITONSERVER_MEMORY_CPU_PINNED) {
     if (dtype != TRITONSERVER_TYPE_BYTES) {
@@ -164,7 +160,6 @@ PbTensor::PbTensor(
   } else {
     numpy_array_ = py::none();
   }
-#endif
 
   byte_size_ = byte_size;
   dl_managed_tensor_ = dl_managed_tensor;
@@ -224,12 +219,6 @@ delete_unused_dltensor(PyObject* dlp)
         static_cast<DLManagedTensor*>(PyCapsule_GetPointer(dlp, "dltensor"));
     dl_managed_tensor->deleter(dl_managed_tensor);
   }
-}
-
-std::shared_ptr<PbTensor>
-PbTensor::FromNumpy(const std::string& name, py::array& numpy_array)
-{
-  return std::make_shared<PbTensor>(name, numpy_array);
 }
 
 DLDeviceType
@@ -503,7 +492,12 @@ PbTensor::Name() const
   return name_;
 }
 
-#ifdef TRITON_PB_STUB
+std::shared_ptr<PbTensor>
+PbTensor::FromNumpy(const std::string& name, py::array& numpy_array)
+{
+  return std::make_shared<PbTensor>(name, numpy_array);
+}
+
 const py::array*
 PbTensor::AsNumpy() const
 {
@@ -514,7 +508,6 @@ PbTensor::AsNumpy() const
         "Tensor is stored in GPU and cannot be converted to NumPy.");
   }
 }
-#endif  // TRITON_PB_STUB
 
 void
 PbTensor::SaveToSharedMemory(
@@ -635,7 +628,6 @@ PbTensor::PbTensor(
   memory_type_id_ = pb_memory_->MemoryTypeId();
   shm_handle_ = tensor_shm_.handle_;
 
-#ifdef TRITON_PB_STUB
   if (memory_type_ == TRITONSERVER_MEMORY_CPU ||
       memory_type_ == TRITONSERVER_MEMORY_CPU_PINNED) {
     if (dtype_ != TRITONSERVER_TYPE_BYTES) {
@@ -655,6 +647,5 @@ PbTensor::PbTensor(
   } else {
     numpy_array_ = py::none();
   }
-#endif
 }
 }}}  // namespace triton::backend::python
