@@ -84,6 +84,12 @@ SharedMemoryManager::SharedMemoryManager(
     const std::string& shm_region_name, size_t shm_size,
     size_t shm_growth_bytes, bool create)
 {
+
+  std::cout << "ssss[" << getpid() << "] init Shared memory region name: " << shm_region_name << std::endl;
+  std::cout << "ssss[" << getpid() << "] init Shared memory size: " << shm_size << std::endl;
+  std::cout << "ssss[" << getpid() << "] init Shared memory growth bytes: " << shm_growth_bytes << std::endl;
+  std::cout << "ssss[" << getpid() << "] init Create shared memory region: " << (create ? "true" : "false") << std::endl;
+
   shm_region_name_ = shm_region_name;
   create_ = create;
   shm_growth_bytes_ = shm_growth_bytes;
@@ -227,6 +233,7 @@ SharedMemoryManager::FreeMemory()
 
 SharedMemoryManager::~SharedMemoryManager() noexcept(false)
 {
+  std::cout << "ssss[" << getpid() << "] SharedMemoryManager::~SharedMemoryManager" << std::endl;
   if (delete_region_) {
     bi::shared_memory_object::remove(shm_region_name_.c_str());
   }

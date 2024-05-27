@@ -223,6 +223,7 @@ PbMemory::LoadFromSharedMemory(
     bi::managed_external_buffer::handle_t handle, char* data_shm,
     bool open_cuda_handle)
 {
+  std::cout << "mmmm[" << getpid() << "] LoadFromSharedMemory0 handle " << handle << " open_cuda_handle " << open_cuda_handle << std::hex << " data_shm " << (void *)data_shm << std::dec << std::endl;
   MemoryShm* memory_shm_ptr = reinterpret_cast<MemoryShm*>(data_shm);
   char* memory_data_shm = data_shm + sizeof(MemoryShm);
 
@@ -270,6 +271,7 @@ PbMemory::LoadFromSharedMemory(
     std::unique_ptr<SharedMemoryManager>& shm_pool,
     bi::managed_external_buffer::handle_t handle, bool open_cuda_handle)
 {
+  std::cout << "mmmm[" << getpid() << "] LoadFromSharedMemory1 handle " << handle << " open_cuda_handle " << open_cuda_handle << std::endl;
   AllocatedSharedMemory<char> memory_shm = shm_pool->Load<char>(handle);
   MemoryShm* memory_shm_ptr =
       reinterpret_cast<MemoryShm*>(memory_shm.data_.get());
@@ -322,6 +324,9 @@ PbMemory::PbMemory(
 {
   memory_shm_ptr_ = reinterpret_cast<MemoryShm*>(memory_shm_.data_.get());
   memory_shm_handle_ = memory_shm_.handle_;
+  std::cout << "mmmm[" << getpid() << "] PbMemory0 memory_shm_handle_ " << memory_shm_handle_ << " memory_shm_ptr_ " << std::hex << (void*)memory_shm_ptr_ << std::dec << std::endl;
+  std::cout << "mmmm[" << getpid() << "] PbMemory0 data_ptr_ " << std::hex << (void*)data_ptr_ << std::dec << std::endl;
+  std::cout << "mmmm[" << getpid() << "] PbMemory0 opened_cuda_ipc_handle_ " << opened_cuda_ipc_handle_ << std::endl;
 }
 
 PbMemory::PbMemory(
@@ -332,6 +337,9 @@ PbMemory::PbMemory(
   data_ptr_ = data;
   opened_cuda_ipc_handle_ = opened_cuda_ipc_handle;
   memory_shm_handle_ = handle;
+  std::cout << "mmmm[" << getpid() << "] PbMemory1 memory_shm_handle_ " << memory_shm_handle_ << " memory_shm_ptr_ " << std::hex << (void*)memory_shm_ptr_ << std::dec << std::endl;
+  std::cout << "mmmm[" << getpid() << "] PbMemory1 data_ptr_ " << std::hex << (void*)data_ptr_ << std::dec << std::endl;
+  std::cout << "mmmm[" << getpid() << "] PbMemory1 opened_cuda_ipc_handle_ " << opened_cuda_ipc_handle_ << std::endl;
 }
 
 bi::managed_external_buffer::handle_t

@@ -274,6 +274,8 @@ InferRequest::LoadFromSharedMemory(
     std::unique_ptr<SharedMemoryManager>& shm_pool,
     bi::managed_external_buffer::handle_t request_handle, bool open_cuda_handle)
 {
+  std::cout << "rrrr[" << getpid() << "] LoadFromSharedMemory handle: " << request_handle << " open_cuda_handle: " << open_cuda_handle << std::endl;
+
   AllocatedSharedMemory<char> infer_request_shm =
       shm_pool->Load<char>(request_handle);
   InferRequestShm* infer_request_shm_ptr =

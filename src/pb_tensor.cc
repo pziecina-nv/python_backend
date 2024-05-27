@@ -494,6 +494,7 @@ PbTensor::FromDLPackCapsule(
 
 PbTensor::~PbTensor() noexcept(false)
 {
+  std::cout << "tttt[" << getpid() << "] ~PbTensor()" << std::endl;
   pb_memory_.reset();
   DeleteDLPack();
 }
@@ -574,6 +575,7 @@ PbTensor::LoadFromSharedMemory(
     std::unique_ptr<SharedMemoryManager>& shm_pool,
     bi::managed_external_buffer::handle_t tensor_handle, bool open_cuda_handle)
 {
+  std::cout << "tttt[" << getpid() << "] LoadFromSharedMemory() tensor_handle " << tensor_handle << " open_cuda_handle " << open_cuda_handle << std::endl;
   AllocatedSharedMemory<char> tensor_shm = shm_pool->Load<char>(tensor_handle);
   TensorShm* tensor_shm_ptr =
       reinterpret_cast<TensorShm*>(tensor_shm.data_.get());
@@ -582,6 +584,8 @@ PbTensor::LoadFromSharedMemory(
   std::unique_ptr<PbString> name_shm = PbString::LoadFromSharedMemory(
       tensor_handle + name_offset, tensor_shm.data_.get() + name_offset);
 
+  std::cout << "tttt[" << getpid() << "] LoadFromSharedMemory() memory handle " << tensor_shm_ptr->memory << std::endl;
+  std::cout << "tttt[" << getpid() << "] LoadFromSharedMemory() name handle " << name_shm->ShmHandle() << " name " << name_shm->String() << std::endl;
   std::unique_ptr<PbMemory> pb_memory;
   if (tensor_shm_ptr->memory == 0) {
     std::size_t pb_memory_offset = name_offset + name_shm->Size();
@@ -635,6 +639,14 @@ PbTensor::PbTensor(
   memory_type_ = pb_memory_->MemoryType();
   memory_type_id_ = pb_memory_->MemoryTypeId();
   shm_handle_ = tensor_shm_.handle_;
+
+  std::cout << "tttt[" << getpid() << "] PbTensor() name " << name_ << " dtype " << dtype_ << std::endl;
+  std::cout << "tttt[" << getpid() << "] PbTensor() memory_ptr_ " << std::hex << (void*)memory_ptr_ << std::dec << " memory_type_ " << memory_type_ << " memory_type_id_ " << memory_type_id_ << " byte_size_ " << byte_size_ << std::endl;
+  std::cout << "tttt[" << getpid() << "] PbTensor() handle " << shm_handle_ << std::endl;
+  // dump dims_ to std::count
+  for (size_t i = 0; i < dims_.size(); i++) {
+    std::cout << "tttt[" << getpid() << "] PbTensor() dims_[" << i << "] " << dims_[i] << std::endl;
+  }
 
 #ifdef TRITON_ENABLE_NUMPY_WRAPPER
   if (memory_type_ == TRITONSERVER_MEMORY_CPU ||
