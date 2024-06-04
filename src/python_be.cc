@@ -2085,7 +2085,18 @@ ModelState::SetModelConfig()
 
 extern "C" {
 
-TRITONBACKEND_ISPEC TRITONSERVER_Error*
+// redefine TRITONBACKEND_DECLSPEC
+// don't know how to force _COMPILING_TRITONBACKEND in python_backend/build/_deps/repo-core-src/include/triton/core/tritonbackend.h
+#undef TRITONBACKEND_DECLSPEC
+#if defined(_MSC_VER)
+#define TRITONBACKEND_DECLSPEC __declspec(dllexport)
+#elif defined(__GNUC__)
+#define TRITONBACKEND_DECLSPEC __attribute__((__visibility__("default")))
+#else
+#define TRITONBACKEND_DECLSPEC
+#endif
+
+TRITONBACKEND_DECLSPEC TRITONSERVER_Error*
 TRITONBACKEND_Initialize(TRITONBACKEND_Backend* backend)
 {
   const char* cname;
@@ -2334,7 +2345,7 @@ TRITONBACKEND_Initialize(TRITONBACKEND_Backend* backend)
   return nullptr;
 }
 
-TRITONBACKEND_ISPEC TRITONSERVER_Error*
+TRITONBACKEND_DECLSPEC TRITONSERVER_Error*
 TRITONBACKEND_Finalize(TRITONBACKEND_Backend* backend)
 {
   LOG_MESSAGE(TRITONSERVER_LOG_VERBOSE, "TRITONBACKEND_Finalize: Start");
@@ -2346,7 +2357,7 @@ TRITONBACKEND_Finalize(TRITONBACKEND_Backend* backend)
   return nullptr;  // success
 }
 
-TRITONBACKEND_ISPEC TRITONSERVER_Error*
+TRITONBACKEND_DECLSPEC TRITONSERVER_Error*
 TRITONBACKEND_ModelInitialize(TRITONBACKEND_Model* model)
 {
   const char* cname;
@@ -2373,7 +2384,7 @@ TRITONBACKEND_ModelInitialize(TRITONBACKEND_Model* model)
   return nullptr;
 }
 
-TRITONBACKEND_ISPEC TRITONSERVER_Error*
+TRITONBACKEND_DECLSPEC TRITONSERVER_Error*
 TRITONBACKEND_ModelFinalize(TRITONBACKEND_Model* model)
 {
   void* vstate;
@@ -2389,7 +2400,7 @@ TRITONBACKEND_ModelFinalize(TRITONBACKEND_Model* model)
   return nullptr;
 }
 
-TRITONBACKEND_ISPEC TRITONSERVER_Error*
+TRITONBACKEND_DECLSPEC TRITONSERVER_Error*
 TRITONBACKEND_ModelInstanceInitialize(TRITONBACKEND_ModelInstance* instance)
 {
   const char* cname;
@@ -2432,7 +2443,8 @@ TRITONBACKEND_ModelInstanceInitialize(TRITONBACKEND_ModelInstance* instance)
   return nullptr;
 }
 
-TRITONBACKEND_ISPEC TRITONSERVER_Error*
+
+TRITONBACKEND_DECLSPEC TRITONSERVER_Error*
 TRITONBACKEND_ModelInstanceExecute(
     TRITONBACKEND_ModelInstance* instance, TRITONBACKEND_Request** requests,
     const uint32_t request_count)
@@ -2557,7 +2569,7 @@ TRITONBACKEND_ModelInstanceExecute(
   return nullptr;
 }
 
-TRITONBACKEND_ISPEC TRITONSERVER_Error*
+TRITONBACKEND_DECLSPEC TRITONSERVER_Error*
 TRITONBACKEND_ModelInstanceFinalize(TRITONBACKEND_ModelInstance* instance)
 {
   void* vstate;
@@ -2574,7 +2586,7 @@ TRITONBACKEND_ModelInstanceFinalize(TRITONBACKEND_ModelInstance* instance)
   return nullptr;
 }
 
-TRITONBACKEND_ISPEC TRITONSERVER_Error*
+TRITONBACKEND_DECLSPEC TRITONSERVER_Error*
 TRITONBACKEND_GetBackendAttribute(
     TRITONBACKEND_Backend* backend,
     TRITONBACKEND_BackendAttribute* backend_attributes)
