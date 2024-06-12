@@ -34,10 +34,10 @@
 
 #ifdef TRITON_PB_STUB
 #include <pybind11/embed.h>
-#include <pybind11/stl.h>
-#endif
 #include <pybind11/numpy.h>
+#include <pybind11/stl.h>
 namespace py = pybind11;
+#endif
 
 #include <functional>
 #include <string>
@@ -64,6 +64,7 @@ struct TensorShm {
 // PbTensor class is the representation of Triton tensors inside Python backend.
 class PbTensor {
  public:
+#ifdef TRITON_PB_STUB
   /// Create a PbTensor using a numpy array
   /// \param name The name of the tensor
   /// \param numpy_array Numpy array to use for the initialization of the tensor
@@ -78,6 +79,7 @@ class PbTensor {
   PbTensor(
       const std::string& name, py::array& numpy_array,
       TRITONSERVER_DataType dtype);
+#endif
 
   /// Create a PbTensor from raw pointer. This constructor is used for
   /// interfacing with DLPack tensors.
@@ -121,6 +123,12 @@ class PbTensor {
   /// capsule.
   static std::shared_ptr<PbTensor> FromDLPackCapsule(
       const std::string& name, const py::capsule& dlpack);
+
+  /// Construct a Python backend tensor using a NumPy object.
+  /// \param numpy_array Numpy array
+  /// \param name name of the tensor
+  static std::shared_ptr<PbTensor> FromNumpy(
+      const std::string& name, py::array& numpy_array);
 
   /// Get device type in DLPack format.
   DLDeviceType DeviceType();
@@ -166,16 +174,12 @@ class PbTensor {
       bi::managed_external_buffer::handle_t tensor_handle,
       bool open_cuda_handle);
 
-  /// Construct a Python backend tensor using a NumPy object.
-  /// \param numpy_array Numpy array
-  /// \param name name of the tensor
-  static std::shared_ptr<PbTensor> FromNumpy(
-      const std::string& name, py::array& numpy_array);
-
+#ifdef TRITON_PB_STUB
   /// Get NumPy representation of the tensor.
   /// \throw If the tensor is stored in GPU, an exception is thrown
   /// \return NumPy representation of the Tensor
   const py::array* AsNumpy() const;
+#endif
 
   /// Save tensor inside shared memory.
   void SaveToSharedMemory(
@@ -228,9 +232,11 @@ class PbTensor {
 
  protected:
   std::string name_;
+#ifdef TRITON_PB_STUB
   py::array numpy_array_;
   // Storing the serialized version of the numpy array
   py::array numpy_array_serialized_;
+#endif
   TRITONSERVER_DataType dtype_;
   void* memory_ptr_;
   int64_t memory_type_id_;

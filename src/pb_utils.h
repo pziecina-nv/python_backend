@@ -42,9 +42,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include <pybind11/numpy.h>
-#include <pybind11/stl.h>
-
 #include "pb_exception.h"
 #include "shm_manager.h"
 #include "triton/backend/backend_common.h"
@@ -53,7 +50,6 @@
 namespace triton { namespace backend { namespace python {
 
 namespace bi = boost::interprocess;
-namespace py = pybind11;
 
 #define STUB_SET_RESPONSE_ERROR_IF_ERROR(SHM_POOL, RESPONSE, R, X) \
   do {                                                             \
@@ -343,20 +339,5 @@ std::shared_ptr<TRITONSERVER_Error*> WrapTritonErrorInSharedPtr(
 #endif
 
 std::string GenerateUUID();
-
-/// Convert numpy dtype to triton dtype
-/// \param data_type numpy data type to be converted.
-/// \return equivalent triton dtype
-TRITONSERVER_DataType numpy_to_triton_type(py::object data_type);
-
-/// Convert triton dtype to numpy dtype
-/// \param data_type triton dtype to be converted.
-/// \return equivalent numpy data type.
-py::object triton_to_numpy_type(TRITONSERVER_DataType data_type);
-
-/// Convert triton data to pybind data type.
-/// \param data_type triton dtype to be converted.
-/// \return equivalent pybind numpy dtype.
-py::dtype triton_to_pybind_dtype(TRITONSERVER_DataType data_type);
 
 }}}  // namespace triton::backend::python
