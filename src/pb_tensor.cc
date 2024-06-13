@@ -31,14 +31,13 @@
 #ifdef TRITON_PB_STUB
 #include "pb_stub.h"
 #include "pb_stub_utils.h"
-namespace py = pybind11;
 #endif
 #include "pb_tensor.h"
 
 
 namespace triton { namespace backend { namespace python {
 
-#ifdef TRITON_PB_STUB
+#ifdef TRITON_ENABLE_NUMPY_WRAPPER
 PbTensor::PbTensor(const std::string& name, py::array& numpy_array)
     : name_(name)
 {
@@ -144,7 +143,7 @@ PbTensor::PbTensor(
   dtype_ = dtype;
   dims_ = dims;
 
-#ifdef TRITON_PB_STUB
+#ifdef TRITON_ENABLE_NUMPY_WRAPPER
   if (memory_type_ == TRITONSERVER_MEMORY_CPU ||
       memory_type_ == TRITONSERVER_MEMORY_CPU_PINNED) {
     if (dtype != TRITONSERVER_TYPE_BYTES) {
@@ -215,6 +214,14 @@ PbTensor::SetMemory(std::unique_ptr<PbMemory>&& memory)
   memory_ptr_ = pb_memory_->DataPtr();
 }
 
+#ifdef TRITON_ENABLE_NUMPY_WRAPPER
+std::shared_ptr<PbTensor>
+PbTensor::FromNumpy(const std::string& name, py::array& numpy_array)
+{
+  return std::make_shared<PbTensor>(name, numpy_array);
+}
+#endif
+
 #ifdef TRITON_PB_STUB
 void
 delete_unused_dltensor(PyObject* dlp)
@@ -224,12 +231,6 @@ delete_unused_dltensor(PyObject* dlp)
         static_cast<DLManagedTensor*>(PyCapsule_GetPointer(dlp, "dltensor"));
     dl_managed_tensor->deleter(dl_managed_tensor);
   }
-}
-
-std::shared_ptr<PbTensor>
-PbTensor::FromNumpy(const std::string& name, py::array& numpy_array)
-{
-  return std::make_shared<PbTensor>(name, numpy_array);
 }
 
 DLDeviceType
@@ -503,7 +504,7 @@ PbTensor::Name() const
   return name_;
 }
 
-#ifdef TRITON_PB_STUB
+#ifdef TRITON_ENABLE_NUMPY_WRAPPER
 const py::array*
 PbTensor::AsNumpy() const
 {
@@ -514,7 +515,7 @@ PbTensor::AsNumpy() const
         "Tensor is stored in GPU and cannot be converted to NumPy.");
   }
 }
-#endif  // TRITON_PB_STUB
+#endif  // TRITON_ENABLE_NUMPY_WRAPPER
 
 void
 PbTensor::SaveToSharedMemory(
@@ -635,7 +636,7 @@ PbTensor::PbTensor(
   memory_type_id_ = pb_memory_->MemoryTypeId();
   shm_handle_ = tensor_shm_.handle_;
 
-#ifdef TRITON_PB_STUB
+#ifdef TRITON_ENABLE_NUMPY_WRAPPER
   if (memory_type_ == TRITONSERVER_MEMORY_CPU ||
       memory_type_ == TRITONSERVER_MEMORY_CPU_PINNED) {
     if (dtype_ != TRITONSERVER_TYPE_BYTES) {

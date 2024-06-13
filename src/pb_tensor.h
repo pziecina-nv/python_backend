@@ -33,6 +33,10 @@
 #include <dlpack/dlpack.h>
 
 #ifdef TRITON_PB_STUB
+#define TRITON_ENABLE_NUMPY_WRAPPER
+#endif
+
+#ifdef TRITON_ENABLE_NUMPY_WRAPPER
 #include <pybind11/embed.h>
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>
@@ -64,7 +68,7 @@ struct TensorShm {
 // PbTensor class is the representation of Triton tensors inside Python backend.
 class PbTensor {
  public:
-#ifdef TRITON_PB_STUB
+#ifdef TRITON_ENABLE_NUMPY_WRAPPER
   /// Create a PbTensor using a numpy array
   /// \param name The name of the tensor
   /// \param numpy_array Numpy array to use for the initialization of the tensor
@@ -111,6 +115,14 @@ class PbTensor {
   // Copying tensor objects is not allowed.
   DISALLOW_COPY_AND_ASSIGN(PbTensor);
 
+#ifdef TRITON_ENABLE_NUMPY_WRAPPER
+  /// Construct a Python backend tensor using a NumPy object.
+  /// \param numpy_array Numpy array
+  /// \param name name of the tensor
+  static std::shared_ptr<PbTensor> FromNumpy(
+      const std::string& name, py::array& numpy_array);
+#endif
+
 #ifdef TRITON_PB_STUB
   /// Construct a Python backend tensor from an
   /// external tensor.
@@ -123,12 +135,6 @@ class PbTensor {
   /// capsule.
   static std::shared_ptr<PbTensor> FromDLPackCapsule(
       const std::string& name, const py::capsule& dlpack);
-
-  /// Construct a Python backend tensor using a NumPy object.
-  /// \param numpy_array Numpy array
-  /// \param name name of the tensor
-  static std::shared_ptr<PbTensor> FromNumpy(
-      const std::string& name, py::array& numpy_array);
 
   /// Get device type in DLPack format.
   DLDeviceType DeviceType();
@@ -174,7 +180,7 @@ class PbTensor {
       bi::managed_external_buffer::handle_t tensor_handle,
       bool open_cuda_handle);
 
-#ifdef TRITON_PB_STUB
+#ifdef TRITON_ENABLE_NUMPY_WRAPPER
   /// Get NumPy representation of the tensor.
   /// \throw If the tensor is stored in GPU, an exception is thrown
   /// \return NumPy representation of the Tensor
@@ -232,7 +238,7 @@ class PbTensor {
 
  protected:
   std::string name_;
-#ifdef TRITON_PB_STUB
+#ifdef TRITON_ENABLE_NUMPY_WRAPPER
   py::array numpy_array_;
   // Storing the serialized version of the numpy array
   py::array numpy_array_serialized_;
