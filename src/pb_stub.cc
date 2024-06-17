@@ -1825,7 +1825,8 @@ PYBIND11_EMBEDDED_MODULE(c_python_backend_utils, module)
           py::return_value_policy::reference_internal)
       .def("get_response_sender", &InferRequest::GetResponseSender)
       .def("is_cancelled", &InferRequest::IsCancelled)
-      .def("set_release_flags", &InferRequest::SetReleaseFlags),
+      .def("set_release_flags", &InferRequest::SetReleaseFlags)
+      .def("_shm_handle", &InferRequest::ShmHandle),
       py::arg("flags").none(false);
 
   py::class_<PbTensor, std::shared_ptr<PbTensor>>(module, "Tensor")
