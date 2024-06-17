@@ -30,6 +30,8 @@
 
 #ifdef TRITON_PB_STUB
 #include "pb_stub.h"
+#endif
+#ifdef TRITON_ENABLE_NUMPY_WRAPPER
 #include "pb_stub_utils.h"
 #endif
 #include "pb_tensor.h"
