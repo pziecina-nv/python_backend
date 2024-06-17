@@ -68,6 +68,8 @@ void
 InferResponse::SaveToSharedMemory(
     std::unique_ptr<SharedMemoryManager>& shm_pool, bool copy_gpu)
 {
+
+  std::cout << "zzzz[" << getpid() << "] SaveToSharedMemory copy_gpu: " << copy_gpu << std::endl;
   size_t output_tensor_length = output_tensors_.size();
   if (HasError()) {
     response_shm_ = shm_pool->Construct<char>(sizeof(ResponseShm));
@@ -135,6 +137,8 @@ InferResponse::LoadFromSharedMemory(
     bi::managed_external_buffer::handle_t response_handle,
     bool open_cuda_handle)
 {
+  std::cout << "zzzz[" << getpid() << "] LoadFromSharedMemory handle: " << response_handle << " open_cuda_handle: " << open_cuda_handle << std::endl;
+
   AllocatedSharedMemory<char> response_shm =
       shm_pool->Load<char>(response_handle);
   ResponseShm* response_shm_ptr =
