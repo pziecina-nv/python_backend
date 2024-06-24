@@ -68,46 +68,47 @@ void
 InferResponse::SaveToSharedMemory(
     std::unique_ptr<SharedMemoryManager>& shm_pool, bool copy_gpu)
 {
-
-  std::cout << "zzzz[" << getpid() << "] SaveToSharedMemory copy_gpu: " << copy_gpu << std::endl;
-  size_t output_tensor_length = output_tensors_.size();
-  if (HasError()) {
-    response_shm_ = shm_pool->Construct<char>(sizeof(ResponseShm));
-  } else {
-    response_shm_ = shm_pool->Construct<char>(
-        sizeof(ResponseShm) +
-        output_tensor_length * sizeof(bi::managed_external_buffer::handle_t));
-  }
-
-  ResponseShm* response_shm_ptr =
-      reinterpret_cast<ResponseShm*>(response_shm_.data_.get());
-  response_shm_ptr->has_error = false;
-  response_shm_ptr->is_error_set = false;
-  shm_handle_ = response_shm_.handle_;
-  response_shm_ptr->is_last_response = is_last_response_;
-
-  // Only save the output tensors to shared memory when the inference response
-  // doesn't have error.
-  if (HasError()) {
-    response_shm_ptr->has_error = true;
-    Error()->SaveToSharedMemory(shm_pool);
-
-    response_shm_ptr->is_error_set = true;
-    response_shm_ptr->error = Error()->ShmHandle();
-    response_shm_ptr->outputs_size = 0;
-  } else {
-    bi::managed_external_buffer::handle_t* tensor_handle_shm_ptr =
-        reinterpret_cast<bi::managed_external_buffer::handle_t*>(
-            response_shm_.data_.get() + sizeof(ResponseShm));
-    response_shm_ptr->outputs_size = output_tensor_length;
-
-    size_t j = 0;
-    for (auto& output_tensor : output_tensors_) {
-      output_tensor->SaveToSharedMemory(shm_pool, copy_gpu);
-      tensor_handle_shm_ptr[j] = output_tensor->ShmHandle();
-      j++;
+  if (response_shm_.data_.get() == nullptr) {
+    std::cout << "zzzz[" << getpid() << "] SaveToSharedMemory copy_gpu: " << copy_gpu << std::endl;
+    size_t output_tensor_length = output_tensors_.size();
+    if (HasError()) {
+      response_shm_ = shm_pool->Construct<char>(sizeof(ResponseShm));
+    } else {
+      response_shm_ = shm_pool->Construct<char>(
+          sizeof(ResponseShm) +
+          output_tensor_length * sizeof(bi::managed_external_buffer::handle_t));
     }
-    response_shm_ptr->id = id_;
+
+    ResponseShm* response_shm_ptr =
+        reinterpret_cast<ResponseShm*>(response_shm_.data_.get());
+    response_shm_ptr->has_error = false;
+    response_shm_ptr->is_error_set = false;
+    shm_handle_ = response_shm_.handle_;
+    response_shm_ptr->is_last_response = is_last_response_;
+
+    // Only save the output tensors to shared memory when the inference response
+    // doesn't have error.
+    if (HasError()) {
+      response_shm_ptr->has_error = true;
+      Error()->SaveToSharedMemory(shm_pool);
+
+      response_shm_ptr->is_error_set = true;
+      response_shm_ptr->error = Error()->ShmHandle();
+      response_shm_ptr->outputs_size = 0;
+    } else {
+      bi::managed_external_buffer::handle_t* tensor_handle_shm_ptr =
+          reinterpret_cast<bi::managed_external_buffer::handle_t*>(
+              response_shm_.data_.get() + sizeof(ResponseShm));
+      response_shm_ptr->outputs_size = output_tensor_length;
+
+      size_t j = 0;
+      for (auto& output_tensor : output_tensors_) {
+        output_tensor->SaveToSharedMemory(shm_pool, copy_gpu);
+        tensor_handle_shm_ptr[j] = output_tensor->ShmHandle();
+        j++;
+      }
+      response_shm_ptr->id = id_;
+    }
   }
 }
 
