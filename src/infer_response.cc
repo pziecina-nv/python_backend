@@ -69,7 +69,6 @@ InferResponse::SaveToSharedMemory(
     std::unique_ptr<SharedMemoryManager>& shm_pool, bool copy_gpu)
 {
   if (response_shm_.data_.get() == nullptr) {
-    std::cout << "zzzz[" << getpid() << "] SaveToSharedMemory copy_gpu: " << copy_gpu << std::endl;
     size_t output_tensor_length = output_tensors_.size();
     if (HasError()) {
       response_shm_ = shm_pool->Construct<char>(sizeof(ResponseShm));
