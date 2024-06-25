@@ -138,8 +138,6 @@ InferResponse::LoadFromSharedMemory(
     bi::managed_external_buffer::handle_t response_handle,
     bool open_cuda_handle)
 {
-  std::cout << "zzzz[" << getpid() << "] LoadFromSharedMemory handle: " << response_handle << " open_cuda_handle: " << open_cuda_handle << std::endl;
-
   AllocatedSharedMemory<char> response_shm =
       shm_pool->Load<char>(response_handle);
   ResponseShm* response_shm_ptr =

@@ -135,7 +135,6 @@ class SharedMemoryManager {
       handle = managed_buffer_->get_handle_from_address(
           reinterpret_cast<void*>(shm_ownership_data));
     }
-    std::cout << "ssss[" << getpid() << "] construct T: " << typeid(T).name() << " count: " << count << " aligned: " << aligned << " -> handle: " << handle << std::endl;
 
     return WrapObjectInUniquePtr(obj, shm_ownership_data, handle);
   }
@@ -159,7 +158,6 @@ class SharedMemoryManager {
         shm_ownership_data->ref_count_ += 1;
       }
     }
-    std::cout << "ssss[" << getpid() << "] load T: " << typeid(T).name() << " handle: " << handle << " ref_count_: " << shm_ownership_data->ref_count_ - 1 << "->" << shm_ownership_data->ref_count_ << std::endl;
 
     return WrapObjectInUniquePtr(object_ptr, shm_ownership_data, handle);
   }
@@ -168,7 +166,6 @@ class SharedMemoryManager {
 
   void Deallocate(bi::managed_external_buffer::handle_t handle)
   {
-    std::cout << "ssss[" << getpid() << "] deallocate handle: " << handle << std::endl;
     bi::scoped_lock<bi::interprocess_mutex> guard{*shm_mutex_};
     GrowIfNeeded(0);
     void* ptr = managed_buffer_->get_address_from_handle(handle);
@@ -177,7 +174,6 @@ class SharedMemoryManager {
 
   void DeallocateUnsafe(bi::managed_external_buffer::handle_t handle)
   {
-    std::cout << "ssss[" << getpid() << "] deallocate_unsafe handle: " << handle << std::endl;
     void* ptr = managed_buffer_->get_address_from_handle(handle);
     managed_buffer_->deallocate(ptr);
   }
@@ -223,7 +219,6 @@ class SharedMemoryManager {
       // happen between the time an object was created and the time the object
       // gets destructed.
       GrowIfNeeded(0);
-      std::cout << "ssss[" << getpid() << "] destroyer handle: " << handle << " ref_count_: " << shm_ownership_data->ref_count_ << "->" << shm_ownership_data->ref_count_ - 1 << std::endl;
       shm_ownership_data->ref_count_ -= 1;
       if (shm_ownership_data->ref_count_ == 0) {
         destroy = true;
