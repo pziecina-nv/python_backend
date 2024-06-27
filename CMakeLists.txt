@@ -144,6 +144,17 @@ if(NOT WIN32)
   find_package(Threads REQUIRED)
 endif()
 
+# perfetto
+FetchContent_Declare(
+  perfetto
+  GIT_REPOSITORY "https://android.googlesource.com/platform/external/perfetto"
+  GIT_TAG "v46.0"
+  GIT_SHALLOW ON
+)
+FetchContent_MakeAvailable(perfetto)
+
+add_library(perfetto STATIC ${perfetto_SOURCE_DIR}/sdk/perfetto.cc)
+
 include_directories(${CMAKE_BINARY_DIR})
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/libtriton_python.ldscript ${CMAKE_CURRENT_BINARY_DIR}/libtriton_python.ldscript COPYONLY)
 
@@ -297,6 +308,7 @@ else()
     PRIVATE
       dlpack
       Threads::Threads
+      perfetto
       triton-backend-utils          # from repo-backend
       ${CMAKE_DL_LIBS}              # dlopen and dlclose
       -lrt                          # shared memory
@@ -310,6 +322,7 @@ else()
     PRIVATE
     dlpack
     Threads::Threads
+    perfetto
     triton-backend-utils           # from repo-backend
     ${CMAKE_DL_LIBS}               # dlopen and dlclose
     pybind11::embed
